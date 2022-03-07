@@ -5,7 +5,7 @@ import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import { FaSignOutAlt, FaSearch } from "react-icons/fa";
 
-export const Home = ({ onSubmit, onChange, onClick }) => {
+export const SearchArtists = ({ onSubmit, onChange, onClick }) => {
   return(
     <Container className="px-4">
       <Button variant="dark" onClick={onClick}>

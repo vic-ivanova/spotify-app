@@ -1,30 +1,25 @@
-import { useEffect, useState } from "react";
+import React, { useState } from "react";
 import "./App.css";
 import axios from "axios";
-import { Login } from "./pages/Login";
-import { Home } from "./pages/Home";
-import { ArtistList } from "./components/ArtistList";
+import Dashboard from "./pages/Dashboard";
+import Albums from "./pages/Albums";
+import Tracks from "./pages/Tracks";
 import { FaSpotify } from "react-icons/fa";
+import { useGetToken } from "./api/auth";
+// import {
+//   Route,
+//   Routes,
+//   Navigate
+// } from 'react-router-dom';
 
 function App() {
-  const [clientToken, setClientToken] = useState("");
   const [searchKey, setSearchKey] = useState("");
   const [artists, setArtists] = useState([]);
   const [albums, setAlbums] = useState([]);
-  const [songs, setSongs] = useState([]);
+  const [albumTracks, setAlbumTracks] = useState([]);
+  const [clientToken, setClientToken] = useGetToken();
 
-  const getToken = () => {
-    let urlParams = new URLSearchParams(window.location.hash.replace("#","?"));
-    let token = urlParams.get("access_token");
-
-    setClientToken(token);
-  }
-
-  useEffect(() => {
-    getToken();
-  }, []);
-
-  const logout = () => {
+  const handleLogout = () => {
     setClientToken("");
   }
 
@@ -36,45 +31,60 @@ function App() {
       },
       params: {
         q: searchKey,
-        type: "artist"
+        type: "artist",
       }
     })
 
     setArtists(data.artists.items);
   };
 
-  // const getArtistAlbums = async (e, id) => {
-  //   e.preventDefault();
-  //   const { data } = await axios.get(`https://api.spotify.com/v1/artists/${id}/albums`, {
-  //     headers: {
-  //       Authorization: `Bearer ${clientToken}`
-  //     }
-  //   })
+  const getArtistAlbums = async (id) => {
+    const { data } = await axios.get(`https://api.spotify.com/v1/artists/${id}/albums`, {
+      headers: {
+        Authorization: `Bearer ${clientToken}`
+      }
+    })
 
-  //   setAlbums(data);
-  // }
+    setAlbums(data.items);
+  }
 
-  console.log(artists)
+  const getAlbumTracks = async (id) => {
+    const { data } = await axios.get(`https://api.spotify.com/v1/albums/${id}/tracks`, {
+      headers: {
+        Authorization: `Bearer ${clientToken}`
+      }
+    })
+    
+    setAlbumTracks(data.items);
+  }
 
   return (
     <div className="App">
-      <header className="App-header">
+      <div className="App-header">
         <h1 className="d-flex align-items-center my-5">
           <FaSpotify style={{color: "#1DB954", marginRight: "10px"}} /> Spotify React App
         </h1>
-        {clientToken ?
-          <Home 
-            onClick={logout} 
+          <Dashboard
+            artists={artists} 
+            searchKey={searchKey}
+            clientToken={clientToken}
+            onClick={handleLogout} 
             onSubmit={searchArtists} 
-            onChange={e => setSearchKey(e.target.value)} 
+            getArtistId={getArtistAlbums}
+            onChange={e => setSearchKey(e.target.value)}
           /> 
-          :
-          <Login />
-        }
-        {clientToken && (
-          <ArtistList artists={artists} />
-        )}
-      </header>
+          <Albums 
+            clientToken={clientToken} 
+            albums={albums} 
+            searchKey={searchKey} 
+            getAlbumId={getAlbumTracks} 
+          /> 
+          <Tracks 
+            tracks={albumTracks}
+            searchKey={searchKey}
+            clientToken={clientToken}
+          />
+      </div>
     </div>
   );
 }

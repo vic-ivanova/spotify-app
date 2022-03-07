@@ -4,7 +4,7 @@ import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import { FaSignInAlt } from "react-icons/fa";
 
-export const Login = () => {
+const Login = () => {
   const  REACT_APP_CLIENT_ID = "";
   const  REACT_APP_AUTHORIZE_ENDPOINT = "https://accounts.spotify.com/authorize";
   const  REACT_APP_REDIRECT_URL = "http://localhost:3001/";
@@ -30,3 +30,5 @@ export const Login = () => {
     </Container>
   );
 }
+
+export default Login;
